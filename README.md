@@ -1,70 +1,50 @@
-# Getting Started with Create React App
+# react 프로젝트를 electron으로 띄우기
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+지금 진행중인 cowket 프로젝트에 electron을 적용해보려고 하는데,
+일단 electron사용법을 익혀보고자 테스트프로젝트를 만들었음.
 
-## Available Scripts
+### 정리
 
-In the project directory, you can run:
+1. loadURL (2021.11.21)
 
-### `npm start`
+아래의 블로그를 보고 따라했는데, 따라하다가 에러가 난 부분이있어서 적어보겠당
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+블로그에서 electron.js파일에 아래와 같이 적으라고 나와있었다.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```js
+// main.js
+const { app, BrowserWindow } = require("electron");
+app.whenReady().then(() => {
+  const win = new BrowserWindow();
+  win.loadFile("http://localhost:3000");
+});
+app.on("window-all-closed", () => {
+  app.quit();
+});
+```
 
-### `npm test`
+그런데 이 코드를 실행해보니 리액트프로젝트는 켜지지만 일렉트론실행시 에러가났다.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+에러내용은 파일의 경로를 찾을수가없다는 내용이었다.
 
-### `npm run build`
+일렉트론을 처음 접해봐서 그냥 무작정 따라했는데, `win.loadFile`메서드에 파일경로가 아닌 링크를 넣어주는것이 틀린것같아 공식문서를 찾아보니 아래처럼 나와있었다.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```js
+// In the main process.
+const { BrowserWindow } = require("electron");
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+const win = new BrowserWindow({ width: 800, height: 600 });
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+// Load a remote URL
+win.loadURL("https://github.com");
 
-### `npm run eject`
+// Or load a local HTML file
+win.loadFile("index.html");
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+내가 사용해야하는 메서드는 `loadFile`이 아니라 `loadURL`이었다.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+그래서 메서드를 변경해서 실행해보니 일렉트론이 잘 실행되었다.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+> 참고한 블로그
+> https://pks2974.medium.com/electron-%EC%97%90-react-%EC%A0%81%EC%9A%A9%ED%95%B4-%EB%B3%B4%EA%B8%B0-ebcea2bbbd27
